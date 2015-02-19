@@ -27,7 +27,7 @@
 </head>
 <body>
 
-  <header role="banner" class="header">
+  <!--<header role="banner" class="header">
     {block:ShowTitle}<h1 id="logo"><a href="/">{Title}</a></h1>{/block:ShowTitle}
     {block:ShowDescription}{block:Description}<div class="description">{Description}</div>{/block:Description}{/block:ShowDescription}
     {block:ShowHeaderImage}<img src="{HeaderImage}">{/block:ShowHeaderImage}
@@ -43,9 +43,13 @@
       <input role="textbox" type="search" placeholder="{lang:Search}" name="q" value="{SearchQuery}">
       <input role="button" type="submit" value="{lang:Search}">
     </form>
+  </header>-->
+  
+  <header>
+      
   </header>
 
-  <main role="main" class="content">
+  <main role="main" id="content">
     {block:SearchPage}
     <div class="result">
       <p>{lang:Found SearchResultCount results for SearchQuery 2}</p>
@@ -56,7 +60,7 @@
     {block:TagPage}<div class="result"><p>{lang:TagResultCount posts tagged Tag 3}</p></div>{/block:TagPage}
 
     {block:Posts}
-    <article class="post {PostType} {TagsAsClasses}">
+    <article class="post {PostType} {TagsAsClasses}" id="post-{PostID}">
       {block:Date}
       {block:NewDayDate}<p>{DayOfWeek}, {Month} {DayOfMonth}, {Year}</p>{/block:NewDayDate}
       {block:SameDayDate}<p>{DayOfWeek}, {Month} {DayOfMonth}, {Year}</p>{/block:SameDayDate}
@@ -162,8 +166,9 @@
       <p><a href="{Permalink}" class="permalink">{lang:Permalink}</a></p>{/block:IndexPage}
     </article>
     {/block:Posts}
-
-    {block:PermalinkPagination}
+  </main>
+  <footer role="" class="footer">
+  {block:PermalinkPagination}
     <div class="pagination">
       {block:PreviousPost}<a class="prev"href="{PreviousPost}">{lang:Previous post}</a>{/block:PreviousPost}
       {block:NextPost}<a class="next" href="{NextPost}">{lang:Next post}</a>{/block:NextPost}
@@ -182,9 +187,64 @@
       {block:NextPage}<a class="next" href="{NextPage}">{lang:Next}</a>{/block:NextPage}
     </div>
     {/block:Pagination}
-  </main>
-  <footer role="" class="footer">
-    <small>{block:ShowTitle}{Title} {/block:ShowTitle}&copy; {CopyrightYears} DOES THIS BOILERPLATE ACTUALLY WORK IN REAL TIME?</small>
+    <small>{block:ShowTitle}{Title} {/block:ShowTitle}&copy; {CopyrightYears}</small>
   </footer>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="http://static.tumblr.com/iwtk77u/Yhym2yygt/jquery.imagesloaded.min.js"></script>
+<script src="http://static.tumblr.com/wgijwsy/Ebfm2v4gy/jquery.masonry.min.js"></script>
+<script src="http://static.tumblr.com/wgijwsy/u2vm2hxv6/jquery.infinitescroll.min.js"></script>
+<style type="text/css">
+.interstitial {
+  margin: 0 auto;
+  width: 80%;
+  background: red;
+  text-align: center;
+  line-height: 5em;
+  color: white;
+}
+</style>
+
+<script>
+  (function () {
+  var $tumblelog = $('#content');
+  var $article = $("article");
+  $tumblelog.infinitescroll({
+      navSelector: ".pagination",
+      nextSelector: ".pagination a:last-child",
+      itemSelector: "article"
+  },
+
+  function (newElements) {
+      var $newElems = $(newElements).css({
+          opacity: 0
+      });
+      $newElems.imagesLoaded(function () {
+          var $pageNum = parseInt($(".page:last").data("page") + 1);
+          $newElems.wrapAll('<div class="page" id="page-'+$pageNum+'" data-page="'+$pageNum+'">');
+          $newElems.animate({
+              opacity: 1
+          });
+          $("#page-"+$pageNum).masonry({
+              columnWidth: function (containerWidth) {
+                  return containerWidth / 100;
+              }
+          })
+          includeInterstitial();
+      });
+  });
+  $tumblelog.imagesLoaded(function () {
+    $article.wrapAll('<div class="page" id="page-1" data-page="1">');
+      $("#page-1").masonry({
+          columnWidth: function (containerWidth) {
+              return containerWidth / 100;
+          }
+      })
+      includeInterstitial();
+  });
+  function includeInterstitial(){
+    $("#content").append('<p class="interstitial">This is interstitial content.</p>');
+  }
+})();
+</script>
 </body>
 </html>
